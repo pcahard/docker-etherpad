@@ -54,13 +54,16 @@ and the /admin/ interface is accessible via it.
 * `ETHERPAD_ADMIN_USER`: If the admin password is set, this defaults to "admin".
 Otherwise the user can set it to another username.
 
-* `ETHERPAD_DB_USER`: By default Etherpad Lite will attempt to connect as root
+* `DB_USER`: By default Etherpad Lite will attempt to connect as root
 to the mysql container. This allows to change this.
-* `ETHERPAD_DB_PASSWORD`: The password for the mysql user. If the root user is
+* `DB_PASSWORD`: The password for the mysql user. If the root user is
 used, then the password will default to the mysql container's
 `MYSQL_ROOT_PASSWORD`.
-* `ETHERPAD_DB_NAME`: The mysql database to use. Defaults to *etherpad*. If the
+* `DB_NAME`: The mysql database to use. Defaults to *etherpad*. If the
 database is not available, it will be created when the container is launched.
+* `DB_PORT`: The mysql port
+* `DB_HOST`: The mysql host
+* `DB_TYPE`: the sgbd type. Defaults  *mysql*.
 
 The generated settings.json file will be available as a volume under
 */opt/etherpad-lite/var/*.
