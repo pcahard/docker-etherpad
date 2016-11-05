@@ -1,31 +1,34 @@
 #!/bin/bash
 set -e
 
-if [ -z "$MYSQL_PORT_3306_TCP_ADDR" ]; then
-	echo >&2 'error: missing MYSQL_PORT_3306_TCP environment variable'
-	echo >&2 '  Did you forget to --link some_mysql_container:mysql ?'
-	exit 1
+if [ -z "$DB_PORT" ]; then
+	: DB_POST = '3306'
 fi
 
-if [ -z "$ETHERPAD_DB_HOST" ]; then
-	$ETHERPAD_DB_HOST = 'mysql'
+
+if [ -z "$DB_HOST" ]; then
+	: DB_HOST = 'localhost'
+fi
+
+if [ -z "$DB_TYPE" ]; then
+	: DB_TYPE = 'mysql'
 fi
 
 # if we're linked to MySQL, and we're using the root user, and our linked
 # container has a default "root" password set up and passed through... :)
-: ${ETHERPAD_DB_USER:=root}
-if [ "$ETHERPAD_DB_USER" = 'root' ]; then
-	: ${ETHERPAD_DB_PASSWORD:=$MYSQL_ENV_MYSQL_ROOT_PASSWORD}
+: ${DB_USER:=root}
+if [ "$DB_USER" = 'root' ]; then
+	: ${B_PASSWORD:=$MYSQL_ENV_MYSQL_ROOT_PASSWORD}
 fi
-: ${ETHERPAD_DB_NAME:=etherpad}
+: ${DB_NAME:=etherpad}
 
-ETHERPAD_DB_NAME=$( echo $ETHERPAD_DB_NAME | sed 's/\./_/g' )
+DB_NAME=$( echo $DB_NAME | sed 's/\./_/g' )
 
-if [ -z "$ETHERPAD_DB_PASSWORD" ]; then
-	echo >&2 'error: missing required ETHERPAD_DB_PASSWORD environment variable'
-	echo >&2 '  Did you forget to -e ETHERPAD_DB_PASSWORD=... ?'
+if [ -z "$DB_PASSWORD" ]; then
+	echo >&2 'error: missing required DB_PASSWORD environment variable'
+	echo >&2 '  Did you forget to -e DB_PASSWORD=... ?'
 	echo >&2
-	echo >&2 '  (Also of interest might be ETHERPAD_DB_USER and ETHERPAD_DB_NAME.)'
+	echo >&2 '  (Also of interest might be DB_USER and DB_NAME.)'
 	exit 1
 fi
 
@@ -35,16 +38,16 @@ fi
 		node -p "require('crypto').randomBytes(32).toString('hex')")}
 
 # Check if database already exists
-RESULT=`mysql -u${ETHERPAD_DB_USER} -p${ETHERPAD_DB_PASSWORD} \
-	-hmysql --skip-column-names \
-	-e "SHOW DATABASES LIKE '${ETHERPAD_DB_NAME}'"`
+RESULT=`mysql -u${DB_USER} -p${DB_PASSWORD} \
+	-h${DB_HOST} --skip-column-names \
+	-e "SHOW DATABASES LIKE '${DB_NAME}'"`
 
-if [ "$RESULT" != $ETHERPAD_DB_NAME ]; then
+if [ "$RESULT" != $DB_NAME ]; then
 	# mysql database does not exist, create it
-	echo "Creating database ${ETHERPAD_DB_NAME}"
+	echo "Creating database ${DB_NAME}"
 
-	mysql -u${ETHERPAD_DB_USER} -p${ETHERPAD_DB_PASSWORD} -hmysql \
-	      -e "create database ${ETHERPAD_DB_NAME}"
+	mysql -u${DB_USER} -p${DB_PASSWORD} -hmysql \
+	      -e "create database ${DB_NAME}"
 fi
 
 if [ ! -f settings.json ]; then
@@ -55,12 +58,12 @@ if [ ! -f settings.json ]; then
 	  "ip": "0.0.0.0",
 	  "port" :${ETHERPAD_PORT},
 	  "sessionKey" : "${ETHERPAD_SESSION_KEY}",
-	  "dbType" : "mysql",
+	  "dbType" : "${DB_TYPE}",
 	  "dbSettings" : {
-			    "user"    : "${ETHERPAD_DB_USER}",
-			    "host"    : ${ETHERPAD_DB_HOST},
-			    "password": "${ETHERPAD_DB_PASSWORD}",
-			    "database": "${ETHERPAD_DB_NAME}"
+			    "user"    : "${DB_USER}",
+			    "host"    : "${DB_HOST}",
+			    "password": "${DB_PASSWORD}",
+			    "database": "${DB_NAME}"
 			  },
 	EOF
 
