@@ -1,0 +1,15 @@
+etherpad:
+  build: etherpad-lite
+  environment:
+    DB_TYPE:     mysql
+    DB_HOST:     <REPLACE_THIS_MYSQL_IP> 
+    DB_PORT:     <REPLACE_THIS_MYSQL_PORT>
+    DB_NAME:     <REPLACE_THIS_MYSQL_DB>
+    DB_USER:     <REPLACE_THIS_MYSQL_USER>
+    DB_PASSWORD: <REPLACE_THIS_MYSQL_PASSWORD>
+    NPM_PLUGINS: ""
+#    ETHERPAD_ADMIN_USER: admin
+#    ETHERPAD_ADMIN_PASSWORD: admin
+  ports:
+    - "9001:9001"
+  restart: always

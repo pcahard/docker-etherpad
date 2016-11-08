@@ -1,11 +1,12 @@
 # Stable version of etherpad doesn't support npm 2
-FROM ubuntu:xenial
+FROM ubuntu:yakkety
 MAINTAINER Pierre Cahard <pcahard@gmail.com>
 
 ENV ETHERPAD_VERSION 1.6.0
 
 RUN apt-get update && \
-    apt-get install -y curl unzip nodejs-legacy npm mysql-client && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y libreoffice abiword curl unzip nodejs-legacy npm mysql-client && \
     rm -r /var/lib/apt/lists/*
 
 WORKDIR /opt/
@@ -19,6 +20,7 @@ WORKDIR etherpad-lite
 
 RUN bin/installDeps.sh && rm settings.json
 COPY entrypoint.sh /entrypoint.sh
+RUN sed -i 's/#prepare the enviroment/sh install_plugins.sh/g' bin/run.sh
 
 RUN sed -i 's/^node/exec\ node/' bin/run.sh
 

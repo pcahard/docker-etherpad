@@ -50,14 +50,19 @@ if [ "$RESULT" != $DB_NAME ]; then
 	      -e "create database ${DB_NAME}"
 fi
 
-if [ ! -f settings.json ]; then
+#if [ ! -f settings.json ]; then
 
 	cat <<- EOF > settings.json
 	{
 	  "title": "${ETHERPAD_TITLE}",
+	  "abiword": "/usr/bin/abiword",
+	  "soffice": "/usr/bin/soffice",
+	  "minify" : true,
+	  "maxAge" : 21600, // 60 * 60 * 6 = 6 hours
+	  "defaultPadText" : "new doc",
+	  "loglevel": "ERROR",
 	  "ip": "0.0.0.0",
 	  "port" :${ETHERPAD_PORT},
-	  "sessionKey" : "${ETHERPAD_SESSION_KEY}",
 	  "dbType" : "${DB_TYPE}",
 	  "dbSettings" : {
 			    "user"    : "${DB_USER}",
@@ -84,6 +89,12 @@ if [ ! -f settings.json ]; then
 	cat <<- EOF >> settings.json
 	}
 	EOF
+#fi
+cat settings.json
+
+touch install_plugins.sh
+if [ -n "$NPM_PLUGINS" ]; then
+    echo "npm install $NPM_PLUGINS" > install_plugins.sh
 fi
 
 exec "$@"
